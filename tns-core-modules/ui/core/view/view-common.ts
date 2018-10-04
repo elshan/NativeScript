@@ -20,7 +20,7 @@ import {
 } from "../../gestures";
 
 import { createViewFromEntry } from "../../builder";
-import { StyleScope } from "../../styling/style-scope";
+import { StyleScope, loadCss } from "../../styling/style-scope";
 import { LinearGradient } from "../../styling/linear-gradient";
 
 export * from "../../styling/style-properties";
@@ -200,10 +200,26 @@ export abstract class ViewCommon extends ViewBase implements ViewDefinition {
         }
     }
 
-    _onLivesync(): boolean {
-        _rootModalViews.forEach(v => v.closeModal());
-        _rootModalViews.length = 0;
-        return false;
+    _onLivesync(context?: LivesyncContext): boolean {
+        console.log("---> view-common _onLivesync");
+        console.log("---> view-common context", context);
+        // TODO: Fix livesync
+        if (context) {
+            const lsStyle = this.livesyncStyle(context);
+            return lsStyle;
+        } else {
+            _rootModalViews.forEach(v => v.closeModal());
+            _rootModalViews.length = 0;
+            return false;
+        }
+    }
+
+    private livesyncStyle(context: LivesyncContext): boolean {
+        console.log("---> view-common livesyncStyle");
+        console.log("---> view-common context", context);
+        loadCss(context.resource);
+        this._onCssStateChange();
+        return true;
     }
 
     public onBackPressed(): boolean {

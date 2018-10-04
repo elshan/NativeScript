@@ -6,7 +6,7 @@ import { Page } from "../page";
 import { getAncestor } from "../core/view/view-common";
 import { View, CustomLayoutView, isIOS, isAndroid, traceEnabled, traceWrite, traceCategories, Property, CSSType } from "../core/view";
 import { createViewFromEntry } from "../builder";
-import { profile } from "../../profiling";
+import { profile, trace } from "../../profiling";
 
 import { frameStack, topmost as frameStackTopmost, _pushInFrameStack, _popFromFrameStack, _removeFromFrameStack } from "./frame-stack";
 export * from "../core/view";
@@ -259,7 +259,7 @@ export class FrameBase extends CustomLayoutView implements FrameDefinition {
                 return true;
             }
         }
-    
+
         return false;
     }
 
@@ -563,35 +563,42 @@ export class FrameBase extends CustomLayoutView implements FrameDefinition {
         return result;
     }
 
-    public _onLivesync(): boolean {
-        super._onLivesync();
-
-        if (!this._currentEntry || !this._currentEntry.entry) {
-            return false;
-        }
-
-        const currentEntry = this._currentEntry.entry;
-        const newEntry: NavigationEntry = {
-            animated: false,
-            clearHistory: true,
-            context: currentEntry.context,
-            create: currentEntry.create,
-            moduleName: currentEntry.moduleName,
-            backstackVisible: currentEntry.backstackVisible
-        }
-
-        // If create returns the same page instance we can't recreate it.
-        // Instead of navigation set activity content.
-        // This could happen if current page was set in XML as a Page instance.
-        if (newEntry.create) {
-            const page = newEntry.create();
-            if (page === this.currentPage) {
+    public _onLivesync(context?: LivesyncContext): boolean {
+        // ?
+        super._onLivesync(context);
+        console.log("---> frame-common _onLivesync");
+        console.log("---> frame-common context", context);
+        // If HMR passes LivesyncContext, skip the navigation
+        if (context) {
+            return true;
+        } else {
+            if (!this._currentEntry || !this._currentEntry.entry) {
                 return false;
             }
-        }
 
-        this.navigate(newEntry);
-        return true;
+            const currentEntry = this._currentEntry.entry;
+            const newEntry: NavigationEntry = {
+                animated: false,
+                clearHistory: true,
+                context: currentEntry.context,
+                create: currentEntry.create,
+                moduleName: currentEntry.moduleName,
+                backstackVisible: currentEntry.backstackVisible
+            }
+
+            // If create returns the same page instance we can't recreate it.
+            // Instead of navigation set activity content.
+            // This could happen if current page was set in XML as a Page instance.
+            if (newEntry.create) {
+                const page = newEntry.create();
+                if (page === this.currentPage) {
+                    return false;
+                }
+            }
+
+            this.navigate(newEntry);
+            return true;
+        }
     }
 }
 

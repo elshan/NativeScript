@@ -51,8 +51,8 @@ declare namespace NodeJS {
         __native?: any;
         __inspector?: any;
         __extends: any;
-        __onLiveSync: () => void;
-        __onLiveSyncCore: () => void;
+        __onLiveSync: (context?: { type: string, resource: string }) => void;
+        __onLiveSyncCore: (context?: { type: string, resource: string }) => void;
         __onUncaughtError: (error: NativeScriptError) => void;
         TNS_WEBPACK?: boolean;
         __requireOverride?: (name: string, dir: string) => any;
@@ -63,6 +63,27 @@ declare function setTimeout(callback: (...args: any[]) => void, ms: number, ...a
 declare function clearTimeout(timeoutId: number): void;
 declare function setInterval(callback: (...args: any[]) => void, ms: number, ...args: any[]): number;
 declare function clearInterval(intervalId: number): void;
+
+declare enum LivesyncType {
+    markup = "markup",
+    script = "script",
+    style = "style"
+}
+
+/**
+ * Define a context for livesync.
+ */
+interface LivesyncContext {
+    /**
+     * The type of livesync.
+     */
+    type: LivesyncType;
+
+    /**
+     * The resource of livesync.
+     */
+    resource: string;
+}
 
 /**
  * An extended JavaScript Error which will have the nativeError property initialized in case the error is caused by executing platform-specific code.

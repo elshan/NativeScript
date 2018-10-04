@@ -70,11 +70,13 @@ export function setApplication(instance: iOSApplication | AndroidApplication): v
     app = instance;
 }
 
-export function livesync() {
+export function livesync(context?: LivesyncContext) {
     events.notify(<EventData>{ eventName: "livesync", object: app });
     const liveSyncCore = global.__onLiveSyncCore;
     if (liveSyncCore) {
-        liveSyncCore();
+        console.log("---> application-common livesync");
+        console.log("---> application-common context", context);
+        liveSyncCore(context);
     }
 }
 
@@ -92,7 +94,7 @@ export function loadAppCss(): void {
         events.notify(<LoadAppCSSEventData>{ eventName: "loadAppCss", object: app, cssFile: getCssFileName() });
     } catch (e) {
         throw new Error(`The file ${getCssFileName()} couldn't be loaded! ` +
-           `You may need to register it inside ./app/vendor.ts.`);
+            `You may need to register it inside ./app/vendor.ts.`);
     }
 }
 

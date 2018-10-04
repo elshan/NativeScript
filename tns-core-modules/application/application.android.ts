@@ -212,12 +212,13 @@ export function getNativeApplication(): android.app.Application {
     return nativeApp;
 }
 
-global.__onLiveSync = function () {
+global.__onLiveSync = function __onLiveSync(context?: LivesyncContext) {
     if (androidApp && androidApp.paused) {
         return;
     }
-
-    livesync();
+    console.log("---> application.android global.__onLiveSync");
+    console.log("---> application.android context", context);
+    livesync(context);
 };
 
 function initLifecycleCallbacks() {
