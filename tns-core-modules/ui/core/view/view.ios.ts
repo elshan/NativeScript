@@ -426,7 +426,7 @@ export class View extends ViewCommon {
         }
     }
 
-    protected _hideNativeModalView(parent: View) {
+    protected _hideNativeModalView(parent: View, whenClosedCallback: () => void) {
         if (!parent || !parent.viewController) {
             traceError("Trying to hide modal view but no parent with viewController specified.")
             return;
@@ -435,8 +435,7 @@ export class View extends ViewCommon {
         const parentController = parent.viewController;
         const animated = (<any>this.viewController).animated;
 
-        super._hideNativeModalView(parent);
-        parentController.dismissModalViewControllerAnimated(animated);
+        parentController.dismissViewControllerAnimatedCompletion(animated, whenClosedCallback);
     }
 
     [isEnabledProperty.getDefault](): boolean {
@@ -907,11 +906,11 @@ export namespace ios {
                         const parentPageInsetsTop = parent.nativeViewProtected.safeAreaInsets.top;
                         const currentInsetsTop = this.view.safeAreaInsets.top;
                         const additionalInsetsTop = Math.max(parentPageInsetsTop - currentInsetsTop, 0);
-    
+
                         const parentPageInsetsBottom = parent.nativeViewProtected.safeAreaInsets.bottom;
                         const currentInsetsBottom = this.view.safeAreaInsets.bottom;
                         const additionalInsetsBottom = Math.max(parentPageInsetsBottom - currentInsetsBottom, 0);
-    
+
                         if (additionalInsetsTop > 0 || additionalInsetsBottom > 0) {
                             const additionalInsets = new UIEdgeInsets({ top: additionalInsetsTop, left: 0, bottom: additionalInsetsBottom, right: 0 });
                             this.additionalSafeAreaInsets = additionalInsets;
